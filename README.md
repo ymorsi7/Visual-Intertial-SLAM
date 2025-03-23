@@ -111,7 +111,7 @@ For the update step, we find the Jacobian of the observation model w.r.t. the IM
 
 ### IMU Localization Results
 
-![IMU Trajectory. The red line is the trajectory from the IMU measurements.](images/image1.png)
+<img src="images/image1.png" alt="IMU Trajectory. The red line is the trajectory from the IMU measurements." width="500">
 
 Figure 1 is the result of our IMU-only localization through EKF prediction done with linear and angular velocity measurements. The trajectory (red) is the estimated path of the robot. We refer to this again in the subsequent parts (in part 3 to make sure the landmark mapping makes sense, and in part 4 to combine with the mapping).
 
@@ -119,15 +119,15 @@ Figure 1 is the result of our IMU-only localization through EKF prediction done 
 
 Our output for this consists of two images, showing the left and right camera frames, with detected features being marked.
 
-![Feature Detection and Matching Results](images/image2.png)   
+<img src="images/image2.png" alt="Feature Detection and Matching Results" width="500">   
 
 For the temporal tracking, we have a similar visualization in which the features are being tracked across consecutive frames.
 
-![Temporal Tracking Results](images/image3.png)
+<img src="images/image3.png" alt="Temporal Tracking Results" width="500">
 
 ### Landmark Mapping Results
 
-![EKF Mapping Results. The landmark positions are blue, and the red line is the IMU trajectory we attained in part 1.](images/image4.png)
+<img src="images/image4.png" alt="EKF Mapping Results. The landmark positions are blue, and the red line is the IMU trajectory we attained in part 1." width="500">
 
 Figure 2 shows the results of landmark mapping with the EKF update step with stereo vision measurements. As seen above, the blue points representing estimated landmark positions, are not only following the shape of, but also clustering near the IMU trajectory (in red). We see our landmark density decreasing as we get further away from the IMU trajectory.
 
@@ -135,7 +135,7 @@ We can see that although there is room for improvement (i.e. visible noise and o
 
 ### Visual-Inertial SLAM Results
 
-![Visual-Inertial SLAM Results. The green line shows the SLAM trajectory, while the red line is once again the IMU-only trajectory. The blue points once again is the landmark map.](images/image5.png)
+<img src="images/image5.png" alt="Visual-Inertial SLAM Results. The green line shows the SLAM trajectory, while the red line is once again the IMU-only trajectory. The blue points once again is the landmark map." width="500">
 
 Figure 3 shows us the results of the final Visual-Inertial SLAM system. The green SLAM-estimated trajectory, is very much in-line with the IMU-only trajectory (red), which tells us that our code is functional. Once again, we plot our landmark map over this image (blue) to give more insight. We see that our SLAM trajectory has improvements over the IMU-only trajectory in the areas where there is more landmark density.
 

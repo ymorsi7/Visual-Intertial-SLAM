@@ -8,7 +8,7 @@ ymorsi@ucsd.edu
 
 ## Running
 
-Due to academic integrity policies, the majority of my code for this project (i.e. `code/feature_detection.py`, `code/main_utils.py`, `code/pr3_utils.py`) is in my `.gitignore`, thus not publically available in this repository.
+Due to academic integrity policies, the majority of my code for this project (i.e. `code/feature_detection.py`, `code/main_utils.py`, `code/pr3_utils.py`) is in my `.gitignore`, thus not publicly available in this repository.
 
 However, if you would like to see my results after the calling of the functions in my code, navigate to `data/main.ipynb` to see the cells calling the functions, with the outputs.
 

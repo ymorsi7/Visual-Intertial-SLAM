@@ -103,4 +103,60 @@ where ![equation](http://latex.codecogs.com/gif.latex?%5Ctilde%7B%5Ctextbf%7Bz%7
 
 For the final part of the project, the complete Visual-Inertial SLAM, we combine the IMU prediction step with the camera update step, but now also update the IMU pose based on observations. As we are relayed once again in the lecture slides [1], the state consists of the IMU pose ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7BT%7D_t%20%5Cin%20SE%283%29) and landmark positions ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bm%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3M%7D).
 
-For the update step, we find the Jacobian of the observation model w.r.t. the IMU pose, once again modeling after the methodology presented in the lecture [1]. This allows us to fix the pose based on visual observations that we have of known landmarks. Despite being similar to the landmark update, the EKF update for
+For the update step, we find the Jacobian of the observation model w.r.t. the IMU pose, once again modeling after the methodology presented in the lecture [1]. This allows us to fix the pose based on visual observations that we have of known landmarks. Despite being similar to the landmark update, the EKF update for the IMU pose differs in that it needs different handling, as the pose is an element of SE(3) instead of an Euclidean vector space, as detailed in [1] and [6].
+
+## Results
+
+### IMU Localization Results
+
+<img src="images/image1.png" alt="IMU Trajectory. The red line is the trajectory from the IMU measurements." width="500">
+
+Figure 1 is the result of our IMU-only localization through EKF prediction done with linear and angular velocity measurements. The trajectory (red) is the estimated path of the robot. We refer to this again in the subsequent parts (in part 3 to make sure the landmark mapping makes sense, and in part 4 to combine with the mapping).
+
+### Feature Detection and Matching Results
+
+Our output for this consists of two images, showing the left and right camera frames, with detected features being marked.
+
+<img src="images/image2.png" alt="Feature Detection and Matching Results" width="500">   
+
+For the temporal tracking, we have a similar visualization in which the features are being tracked across consecutive frames.
+
+<img src="images/image3.png" alt="Temporal Tracking Results" width="500">
+
+### Landmark Mapping Results
+
+<img src="images/image4.png" alt="EKF Mapping Results. The landmark positions are blue, and the red line is the IMU trajectory we attained in part 1." width="500">
+
+Figure 2 shows the results of landmark mapping with the EKF update step with stereo vision measurements. As seen above, the blue points representing estimated landmark positions, are not only following the shape of, but also clustering near the IMU trajectory (in red). We see our landmark density decreasing as we get further away from the IMU trajectory.
+
+We can see that although there is room for improvement (i.e. visible noise and outliers), the overall structure of the environment is preserved properly.
+
+### Visual-Inertial SLAM Results
+
+<img src="images/image5.png" alt="Visual-Inertial SLAM Results. The green line shows the SLAM trajectory, while the red line is once again the IMU-only trajectory. The blue points once again is the landmark map." width="500">
+
+Figure 3 shows us the results of the final Visual-Inertial SLAM system. The green SLAM-estimated trajectory, is very much in-line with the IMU-only trajectory (red), which tells us that our code is functional. Once again, we plot our landmark map over this image (blue) to give more insight. We see that our SLAM trajectory has improvements over the IMU-only trajectory in the areas where there is more landmark density.
+
+In the right part of the map, we can see a correction, where the trajectory deviates a bit from the IMU trajectory, telling us that using both camera and IMU data gives us insight that using just one cannot. Note that the sparsity of the landmarks in this mapping is less for efficiency reasons, as we wanted to avoid unnecessary points not needed for a proper results.
+
+### Conclusion
+
+By the end of this project, we found that the Visual-Inertial SLAM successfully produced improved results subsequent to combining IMU and stereo vision sensors together for the localization and mapping. We are able to see corrections, telling us that this is a useful tool that, once again, is very relevant in today's day and age.
+
+## Acknowledgment
+
+I would like to thank Professor Nikolay Atanasov for his guidance and support throughout this project and course.
+
+## References
+
+[1] N. Atanasov, "Visual-Inertial SLAM," ECE276A: Sensing & Estimation in Robotics, University of California San Diego, Lecture 12, 2025. [Online]. Available: https://natanaso.github.io/ece276a/ref/ECE276A_12_VI_SLAM.pdf
+
+[2] OpenCV Documentation, "Shi-Tomasi Corner Detector," 2023. [Online]. Available: https://docs.opencv.org/4.x/d4/d8c/tutorial_py_shi_tomasi.html
+
+[3] OpenCV Documentation, "Optical Flow," 2023. [Online]. Available: https://docs.opencv.org/4.x/d4/dee/tutorial_optical_flow.html
+
+[4] K. Sun et al., "MSCKF_VIO: Multi-State Constraint Kalman Filter for Visual-Inertial Odometry," 2023. [Online]. Available: https://github.com/KumarRobotics/msckf_vio/blob/master/src/image_processor.cpp
+
+[5] T. D. Barfoot, *State Estimation for Robotics*. Cambridge University Press, 2017.
+
+[6] N. Atanasov, "Project 3," ECE276A: Sensing & Estimation in Robotics, University of California San Diego, Project 3, 2025. [Online]. Available: https://natanaso.github.io/ece276a/ref/ECE276A_PR3.zip

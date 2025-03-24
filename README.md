@@ -28,38 +28,34 @@ The following is the Visual-Inertial SLAM problem in mathematical terms, quoting
 
 ### Inputs
 
-- IMU measurements: linear velocity **v**_t ∈ ℝ³ and angular velocity **ω**_t ∈ ℝ³ of the body with coordinates expressed in the body frame of the IMU.
+- IMU measurements: linear velocity ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bv%7D_t%20%5Cin%20%5Cmathbb%7BR%7D%5E3) and angular velocity ![equation](http://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Comega%7D_t%20%5Cin%20%5Cmathbb%7BR%7D%5E3) of the body with coordinates expressed in the body frame of the IMU.
 
-- Time stamps: τ_t in UNIX time (seconds since January 1, 1970).
+- Time stamps: ![equation](http://latex.codecogs.com/gif.latex?%5Ctau_t) in UNIX time (seconds since January 1, 1970).
 
 - Camera measurements: grayscale images with pixel length and width (600 × 480) are provided separately in datasetXX_imgs.npy.
 
-- Visual feature measurements: pixel coordinates **z**_t ∈ ℝ^(4×M) of detected visual features from M point landmarks with precomputed correspondences between the left and right camera frames. Landmarks i that were not observable at time t have measurement 
+- Visual feature measurements: pixel coordinates ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bz%7D_t%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%5Ctimes%20M%7D) of detected visual features from M point landmarks with precomputed correspondences between the left and right camera frames. Landmarks i that were not observable at time t have measurement 
 
-**z**_{t,i} = [-1 -1 -1 -1]ᵀ, indicating a missing observation.
+![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bz%7D_%7Bt%2Ci%7D%20%3D%20%5B-1%20-1%20-1%20-1%5D%5ET), indicating a missing observation.
 
-- Extrinsic calibration: transformation ^I T_C ∈ SE(3) from the left and right camera to the IMU frame. The IMU frame is oriented as x = forward, y = left, z = up.
+- Extrinsic calibration: transformation ![equation](http://latex.codecogs.com/gif.latex?%5E%7BI%7D%5Ctextbf%7BT%7D_C%20%5Cin%20SE%283%29) from the left and right camera to the IMU frame. The IMU frame is oriented as x = forward, y = left, z = up.
 
 - Intrinsic calibration: values for the camera calibration matrix for the left and right camera: 
 
-K = [
-    f_u  0   c_u
-     0  f_v  c_v
-     0   0    1
-]
+![equation](http://latex.codecogs.com/gif.latex?K%20%3D%20%5Cbegin%7Bbmatrix%7D%20f_u%20%26%200%20%26%20c_u%20%5C%5C%200%20%26%20f_v%20%26%20c_v%20%5C%5C%200%20%26%200%20%26%201%20%5Cend%7Bbmatrix%7D)
 
 ### Expected Output
 
-- World-frame IMU pose ^W**T**_{I,t} ∈ SE(3).
-- World-frame coordinates **m**_j ∈ ℝ³ of the point landmarks that generated the visual features.
+- World-frame IMU pose ![equation](http://latex.codecogs.com/gif.latex?%5E%7BW%7D%5Ctextbf%7BT%7D_%7BI%2Ct%7D%20%5Cin%20SE%283%29).
+- World-frame coordinates ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bm%7D_j%20%5Cin%20%5Cmathbb%7BR%7D%5E3) of the point landmarks that generated the visual features.
 
 ### Goal
 
 As described in [1] and [6], our main focus is to determine not only the the robot trajectory, but also landmark positions through state estimation:
 
-Prior: **x**_t | **z**_{0:t}, **u**_{0:t-1} ~ 𝒩(**μ**_{t|t}, **Σ**_{t|t})
+Prior: ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bx%7D_t%20%7C%20%5Ctextbf%7Bz%7D_%7B0%3At%7D%2C%20%5Ctextbf%7Bu%7D_%7B0%3At-1%7D%20%5Csim%20%5Cmathcal%7BN%7D%28%5Cboldsymbol%7B%5Cmu%7D_%7Bt%7Ct%7D%2C%20%5Cboldsymbol%7B%5CSigma%7D_%7Bt%7Ct%7D%29)
 
-where **x**_t = state vector with trajectory **T**_t ∈ SE(3) and landmark positions **m** ∈ ℝ^(3M), **μ**_{t|t} is the est. mean, and **Σ**_{t|t} is the state covariance matrix.
+where ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bx%7D_t%20%3D%20%5Ctext%7Bstate%20vector%20with%20trajectory%7D%20%5Ctextbf%7BT%7D_t%20%5Cin%20SE%283%29%20%5Ctext%7Band%20landmark%20positions%7D%20%5Ctextbf%7Bm%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3M%7D), ![equation](http://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Cmu%7D_%7Bt%7Ct%7D) is the est. mean, and ![equation](http://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5CSigma%7D_%7Bt%7Ct%7D) is the state covariance matrix.
 
 ## Technical Approach
 
@@ -67,13 +63,13 @@ The primary approach utilizes Extended Kalman Filter (EKF), where we have IMU-ba
 
 ### IMU Localization via EKF Prediction
 
-For IMU localization, we utilize the kinematic equations of motion for pose **T**_t ∈ SE(3) while using IMU measurements as inputs, as it provides us with both linear and angular velocity (**v**_t, **ω**_t).
+For IMU localization, we utilize the kinematic equations of motion for pose ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7BT%7D_t%20%5Cin%20SE%283%29) while using IMU measurements as inputs, as it provides us with both linear and angular velocity (![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bv%7D_t), ![equation](http://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Comega%7D_t)).
 
 Utilizing ECE276A lecture notes [1], we find the, the discrete-time kinematics equation used for the pose update as:
 
-**T**_{t+1} = **T**_t exp(τ_t **ζ̂**_t)
+![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7BT%7D_%7Bt&plus;1%7D%20%3D%20%5Ctextbf%7BT%7D_t%20%5Cexp%28%5Ctau_t%20%5Chat%7B%5Cboldsymbol%7B%5Czeta%7D%7D_t%29)
 
-where τ_t is the length of the time step, and **ζ̂**_t is the twist matrix.
+where ![equation](http://latex.codecogs.com/gif.latex?%5Ctau_t) is the length of the time step, and ![equation](http://latex.codecogs.com/gif.latex?%5Chat%7B%5Cboldsymbol%7B%5Czeta%7D%7D_t) is the twist matrix.
 
 Said matrix is created at every time step and keeps a covariance matrix for uncertainty, (which is updated per the EKF prediction equations from [1]). This gives us the ability to track the IMU pose over time while also taking measurement noise into consideration.
 
@@ -87,80 +83,24 @@ For Temporal Tracking, we track features across consecutive frames from the left
 
 ### Landmark Mapping via EKF Update
 
-For landmark mapping, we use our determined IMU poses, and building on that, we estimate the landmark positions. Referring back to the lecture slides [1], we want to estimate the landmark coordinates: **m** = [**m**_1ᵀ, **m**_2ᵀ, ..., **m**_Mᵀ]ᵀ ∈ ℝ^(3M).
+For landmark mapping, we use our determined IMU poses, and building on that, we estimate the landmark positions. Referring back to the lecture slides [1], we want to estimate the landmark coordinates: ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bm%7D%20%3D%20%5B%5Ctextbf%7Bm%7D_1%5ET%2C%20%5Ctextbf%7Bm%7D_2%5ET%2C%20...%2C%20%5Ctextbf%7Bm%7D_M%5ET%5D%5ET%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3M%7D).
 
 The observation model, taken from the lecture notes once again [1], relates landmark positions to stereo camera measurements:
 
-**z**_{t,i} = h(**T**_t, **m**_j) + **v**_{t,i}
+![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bz%7D_%7Bt%2Ci%7D%20%3D%20h%28%5Ctextbf%7BT%7D_t%2C%20%5Ctextbf%7Bm%7D_j%29%20&plus;%20%5Ctextbf%7Bv%7D_%7Bt%2Ci%7D)
 
-where h is the stereo camera projection function and **v**_{t,i} is measurement noise.
+where h is the stereo camera projection function and ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bv%7D_%7Bt%2Ci%7D) is measurement noise.
 
 For the EKF update, we compute the Jacobian of the observation model w.r.t. landmark positions, once again as shown in the lecture slides [1] before performing the update:
 
-**K**_{t+1} = **Σ**_t **H**_{t+1}ᵀ (**H**_{t+1} **Σ**_t **H**_{t+1}ᵀ + **R**)^(-1)  
-**μ**_{t+1} = **μ**_t + **K**_{t+1} (**z**_{t+1} - **z̃**_{t+1})  
-**Σ**_{t+1} = (**I** - **K**_{t+1} **H**_{t+1}) **Σ**_t  
+![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7BK%7D_%7Bt&plus;1%7D%20%3D%20%5Cboldsymbol%7B%5CSigma%7D_t%20%5Ctextbf%7BH%7D_%7Bt&plus;1%7D%5ET%20%28%5Ctextbf%7BH%7D_%7Bt&plus;1%7D%20%5Cboldsymbol%7B%5CSigma%7D_t%20%5Ctextbf%7BH%7D_%7Bt&plus;1%7D%5ET%20&plus;%20%5Ctextbf%7BR%7D%29%5E%7B-1%7D)  
+![equation](http://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Cmu%7D_%7Bt&plus;1%7D%20%3D%20%5Cboldsymbol%7B%5Cmu%7D_t%20&plus;%20%5Ctextbf%7BK%7D_%7Bt&plus;1%7D%20%28%5Ctextbf%7Bz%7D_%7Bt&plus;1%7D%20-%20%5Ctilde%7B%5Ctextbf%7Bz%7D%7D_%7Bt&plus;1%7D%29)  
+![equation](http://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5CSigma%7D_%7Bt&plus;1%7D%20%3D%20%28%5Ctextbf%7BI%7D%20-%20%5Ctextbf%7BK%7D_%7Bt&plus;1%7D%20%5Ctextbf%7BH%7D_%7Bt&plus;1%7D%29%20%5Cboldsymbol%7B%5CSigma%7D_t)  
 
-where **z̃**_{t+1} is the predicted observation, **K**_{t+1} is the Kalman gain, and **R** is the measurement noise covariance.
+where ![equation](http://latex.codecogs.com/gif.latex?%5Ctilde%7B%5Ctextbf%7Bz%7D%7D_%7Bt&plus;1%7D) is the predicted observation, ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7BK%7D_%7Bt&plus;1%7D) is the Kalman gain, and ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7BR%7D) is the measurement noise covariance.
 
 ### Visual-Inertial SLAM
 
-For the final part of the project, the complete Visual-Inertial SLAM, we combine the IMU prediction step with the camera update step, but now also update the IMU pose based on observations. As we are relayed once again in the lecture slides [1], the state consists of the IMU pose **T**_t ∈ SE(3) and landmark positions **m** ∈ ℝ^(3M).
+For the final part of the project, the complete Visual-Inertial SLAM, we combine the IMU prediction step with the camera update step, but now also update the IMU pose based on observations. As we are relayed once again in the lecture slides [1], the state consists of the IMU pose ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7BT%7D_t%20%5Cin%20SE%283%29) and landmark positions ![equation](http://latex.codecogs.com/gif.latex?%5Ctextbf%7Bm%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3M%7D).
 
-For the update step, we find the Jacobian of the observation model w.r.t. the IMU pose, once again modeling after the methodology presented in the lecture [1]. This allows us to fix the pose based on visual observations that we have of known landmarks. Despite being similar to the landmark update, the EKF update for the IMU pose differs in that it needs different handling, as the pose is an element of SE(3) instead of an Euclidean vector space, as detailed in [1] and [6].
-
-## Results
-
-### IMU Localization Results
-
-<img src="images/image1.png" alt="IMU Trajectory. The red line is the trajectory from the IMU measurements." width="500">
-
-Figure 1 is the result of our IMU-only localization through EKF prediction done with linear and angular velocity measurements. The trajectory (red) is the estimated path of the robot. We refer to this again in the subsequent parts (in part 3 to make sure the landmark mapping makes sense, and in part 4 to combine with the mapping).
-
-### Feature Detection and Matching Results
-
-Our output for this consists of two images, showing the left and right camera frames, with detected features being marked.
-
-<img src="images/image2.png" alt="Feature Detection and Matching Results" width="500">   
-
-For the temporal tracking, we have a similar visualization in which the features are being tracked across consecutive frames.
-
-<img src="images/image3.png" alt="Temporal Tracking Results" width="500">
-
-### Landmark Mapping Results
-
-<img src="images/image4.png" alt="EKF Mapping Results. The landmark positions are blue, and the red line is the IMU trajectory we attained in part 1." width="500">
-
-Figure 2 shows the results of landmark mapping with the EKF update step with stereo vision measurements. As seen above, the blue points representing estimated landmark positions, are not only following the shape of, but also clustering near the IMU trajectory (in red). We see our landmark density decreasing as we get further away from the IMU trajectory.
-
-We can see that although there is room for improvement (i.e. visible noise and outliers), the overall structure of the environment is preserved properly.
-
-### Visual-Inertial SLAM Results
-
-<img src="images/image5.png" alt="Visual-Inertial SLAM Results. The green line shows the SLAM trajectory, while the red line is once again the IMU-only trajectory. The blue points once again is the landmark map." width="500">
-
-Figure 3 shows us the results of the final Visual-Inertial SLAM system. The green SLAM-estimated trajectory, is very much in-line with the IMU-only trajectory (red), which tells us that our code is functional. Once again, we plot our landmark map over this image (blue) to give more insight. We see that our SLAM trajectory has improvements over the IMU-only trajectory in the areas where there is more landmark density.
-
-In the right part of the map, we can see a correction, where the trajectory deviates a bit from the IMU trajectory, telling us that using both camera and IMU data gives us insight that using just one cannot. Note that the sparsity of the landmarks in this mapping is less for efficiency reasons, as we wanted to avoid unnecessary points not needed for a proper results.
-
-### Conclusion
-
-By the end of this project, we found that the Visual-Inertial SLAM successfully produced improved results subsequent to combining IMU and stereo vision sensors together for the localization and mapping. We are able to see corrections, telling us that this is a useful tool that, once again, is very relevant in today's day and age.
-
-## Acknowledgment
-
-I would like to thank Professor Nikolay Atanasov for his guidance and support throughout this project and course.
-
-## References
-
-[1] N. Atanasov, "Visual-Inertial SLAM," ECE276A: Sensing & Estimation in Robotics, University of California San Diego, Lecture 12, 2025. [Online]. Available: https://natanaso.github.io/ece276a/ref/ECE276A_12_VI_SLAM.pdf
-
-[2] OpenCV Documentation, "Shi-Tomasi Corner Detector," 2023. [Online]. Available: https://docs.opencv.org/4.x/d4/d8c/tutorial_py_shi_tomasi.html
-
-[3] OpenCV Documentation, "Optical Flow," 2023. [Online]. Available: https://docs.opencv.org/4.x/d4/dee/tutorial_optical_flow.html
-
-[4] K. Sun et al., "MSCKF_VIO: Multi-State Constraint Kalman Filter for Visual-Inertial Odometry," 2023. [Online]. Available: https://github.com/KumarRobotics/msckf_vio/blob/master/src/image_processor.cpp
-
-[5] T. D. Barfoot, *State Estimation for Robotics*. Cambridge University Press, 2017.
-
-[6] N. Atanasov, "Project 3," ECE276A: Sensing & Estimation in Robotics, University of California San Diego, Project 3, 2025. [Online]. Available: https://natanaso.github.io/ece276a/ref/ECE276A_PR3.zip
+For the update step, we find the Jacobian of the observation model w.r.t. the IMU pose, once again modeling after the methodology presented in the lecture [1]. This allows us to fix the pose based on visual observations that we have of known landmarks. Despite being similar to the landmark update, the EKF update for
